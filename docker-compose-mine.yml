@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  pl:
+    image: prairielearn/prairielearn
+    container_name: pl
+    build:
+      context: .
+    command: /bin/bash
+    volumes:
+      - .:/PrairieLearn
+      - /home/usuario/TFG/courses/course01:/course
+      - /home/usuario/TFG/pl_ag_jobs:/jobs
+      - ///var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 3000:3000
+    working_dir: /PrairieLearn
+    stdin_open: true
+    tty: true
+    depends_on:
+      - tg
+    networks:
+      - app-network
+    environment:
+      - HOST_JOBS_DIR=/home/usuario/TFG/pl_ag_jobs
+
+  tg:
+    image: test-generator
+    container_name: tg
+    volumes:
+      - ///var/run/docker.sock:/var/run/docker.sock
+      - /cpp-project/:/cpp-project/
+    ports:
+      - 3030:3030
+    networks:
+      - app-network
+    
+networks:
+  app-network:
+    driver: bridge
