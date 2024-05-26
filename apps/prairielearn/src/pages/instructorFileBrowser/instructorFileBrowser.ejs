@@ -17,6 +17,61 @@
         })
       });
     </script>
+    <script>
+      function showToast(type, message) {
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0 position-fixed bottom-0 end-0 m-3`;
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('data-delay', '3500');
+
+        toast.innerHTML = `
+          <div class="toast-header">
+            <strong class="me-auto">${type}</strong>
+          </div>
+          <div class="toast-body">${message}</div>
+        `;
+        document.body.appendChild(toast);
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+      }
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const updateTestButton = document.getElementById('updateTestButton');
+        if (updateTestButton) {
+          updateTestButton.addEventListener('click', async function() {
+            const updateTestForm = document.getElementById('updateTestForm');
+            if (updateTestForm) {
+              const formData = new FormData(updateTestForm);
+
+              try {
+                const response = await fetch('', {
+                  method: 'POST',
+                  body: formData,
+                });
+
+                console.log(response);
+                const data = await response.json();
+                const message = data.message;
+
+                if (!response.ok) {
+                  console.error(message)
+                  showToast('error', message);
+                  return;
+                }
+
+                console.log(message)
+                showToast('success', message);
+              } catch (error) {
+                console.error(error);
+                showToast('error', 'An error occurred!');
+              } 
+            }
+          })
+        }
+      });
+    </script>
     <%- include('../partials/navbar'); %>
     <main id="content" class="container-fluid">
       <% if (navPage == 'course_admin') { %>
@@ -102,11 +157,23 @@
                       <span>Add new <%= d.label.toLowerCase() %> file</span>
                     </button>
                   <% }); %>
+
+                  <button id="updateTestButton" tabindex="0" class="btn btn-sm btn-light">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Update test</span>
+                  </button>
                 <% } %>
                 <button type="button" id="instructorFileUploadForm-New" class="btn btn-sm btn-light" data-toggle="popover" data-container="body" data-html="true" data-placement="auto" title="Upload file" data-content="<%= include('instructorFileUploadForm', {file: {id: 'New', working_path: file_browser.paths.workingPath}}) %>" data-trigger="manual" onclick="$(this).popover('show')">
                   <i class="fa fa-plus"></i>
                   <span>Add new file</span>
                 </button>
+
+                <form id="updateTestForm" method="POST">
+                  <input type="hidden" name="__csrf_token" value="<%= __csrf_token %>">
+                  <input type="hidden" name="__action" value="update_test">
+                  <input type="hidden" name="working_path" value="<%= file_browser.paths.workingPath %>">
+                </form>
+
                 <% } %>
 
                 <% }%>

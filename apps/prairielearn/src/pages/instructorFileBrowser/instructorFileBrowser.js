@@ -3,6 +3,7 @@ import * as path from 'node:path';
 
 import { AnsiUp } from 'ansi_up';
 import * as async from 'async';
+import axios from 'axios';
 import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
 import { fileTypeFromFile } from 'file-type';
@@ -348,6 +349,98 @@ router.post(
         return;
       }
       res.redirect(req.originalUrl);
+    } else if (req.body.__action === 'update_test') {
+      console.log(req.body);
+      if (!req.body.working_path) {
+        res.status(400).json({ message: 'Working path is required' });
+        return;
+      }
+
+      const questionPath = req.body.working_path;
+      const solutionFileName = 'solution.cpp';
+      let solutionFilePath;
+      try {
+        solutionFilePath = path.join(questionPath, solutionFileName);
+      } catch (err) {
+        res.status(400).json({
+          message: `Invalid solution file path: ${questionPath}/${solutionFileName}`,
+        });
+        return;
+      }
+
+      const solutionExists = await fs.pathExists(solutionFilePath);
+      if (!solutionExists) {
+        res.status(404).json({
+          message: `File not found: ${solutionFilePath}`,
+        });
+        return;
+      }
+
+      const solution = await fs.readFile(solutionFilePath, 'utf8');
+
+      // Generate tests
+      const formData = new FormData();
+      formData.append('code', solution);
+
+      try {
+        const response = await axios.post('http://tg:3030/generate', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        console.log(response.data);
+        const test = response.data;
+        const testFolderName = 'tests';
+        const testFileName = 'test.cpp';
+
+        let testFilePath;
+        try {
+          testFilePath = path.join(questionPath, testFolderName, testFileName);
+        } catch (err) {
+          res.status(400).json({
+            message: `Invalid test file path: ${questionPath}/${testFolderName}/${testFileName}`,
+          });
+          return;
+        }
+
+        const testExists = await fs.pathExists(testFilePath);
+        if (testExists) {
+          const editor = new FileDeleteEditor({
+            locals: res.locals,
+            container,
+            deletePath: testFilePath,
+          });
+
+          const serverJob = await editor.prepareServerJob();
+          try {
+            await editor.executeWithServerJob(serverJob);
+          } catch (err) {
+            res.redirect(res.locals.urlPrefix + '/edit_error/' + serverJob.jobSequenceId);
+            return;
+          }
+        }
+
+        const testFileUploadEditor = new FileUploadEditor({
+          locals: res.locals,
+          container,
+          filePath: testFilePath,
+          fileContents: test,
+        });
+
+        const testFileUploadServerJob = await testFileUploadEditor.prepareServerJob();
+        try {
+          await testFileUploadEditor.executeWithServerJob(testFileUploadServerJob);
+        } catch (err) {
+          res.redirect(
+            res.locals.urlPrefix + '/edit_error/' + testFileUploadServerJob.jobSequenceId,
+          );
+          return;
+        }
+        res.status(200).json({ message: 'Test updated' });
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error generating test' });
+        return;
+      }
     } else {
       throw new Error('unknown __action: ' + req.body.__action);
     }
