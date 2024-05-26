@@ -52,22 +52,6 @@ export function QuestionsTable({
       'questions-table-data',
     )}
 
-    <div class="toast-container" id="toastContainer">
-      <div
-        id="toast"
-        class="toast"
-        role="alert"
-        aria-live="assertive"
-        aria-atomic="true"
-        data-delay="4000"
-      >
-        <div class="toast-header">
-          <strong class="me-auto" id="toastTitle"></strong>
-        </div>
-        <div class="toast-body" id="toastBody"></div>
-      </div>
-    </div>
-
     <div class="card mb-4">
       <div class="card-header bg-primary">
         <div class="row align-items-center justify-content-between">

@@ -162,16 +162,22 @@ onDocumentReady(() => {
   });
 
   let showToast = function (type, message) {
-    const toastElement = document.getElementById('toast');
-    const toastTitleElement = document.getElementById('toastTitle');
-    const toastBodyElement = document.getElementById('toastBody');
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0 position-fixed bottom-0 end-0 m-3`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('data-delay', '3500');
 
-    toastElement.className = `toast text-white bg-${type === 'success' ? 'success' : 'danger'}`;
-    toastTitleElement.textContent = type;
-    toastBodyElement.textContent = message;
+    toast.innerHTML = `
+      <div class="toast-header">
+        <strong class="me-auto">${type}</strong>
+      </div>
+      <div class="toast-body">${message}</div>
+    `;
+    document.body.appendChild(toast);
 
-    const toast = new bootstrap.Toast(toastElement);
-    toast.show();
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
   };
 
   const tableSettings = {
