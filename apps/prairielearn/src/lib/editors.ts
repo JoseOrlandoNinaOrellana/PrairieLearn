@@ -81,7 +81,7 @@ export class Editor {
   protected course: Course;
   protected user: User;
   protected description: string;
-  protected pathsToAdd: string[] | null;
+  public pathsToAdd: string[] | null;
   protected commitMessage: string | null;
 
   constructor(params: BaseEditorOptions) {
@@ -791,36 +791,33 @@ export class CourseInstanceAddEditor extends Editor {
   }
 }
 
+interface QuestionEditorOptions extends BaseEditorOptions {
+  qid: string;
+  title: string;
+}
+
 export class QuestionAddEditor extends Editor {
   public readonly uuid: string;
+  private readonly qid: string;
+  private readonly title: string;
 
-  constructor(params: BaseEditorOptions) {
+  constructor(params: QuestionEditorOptions) {
     super(params);
 
     this.description = `Add question`;
-
     this.uuid = uuidv4();
+    this.qid = params.qid;
+    this.title = params.title;
   }
 
   async write() {
     debug('QuestionAddEditor: write()');
     const questionsPath = path.join(this.course.path, 'questions');
 
-    debug('Get all existing long names');
-    const result = await sqldb.queryAsync(sql.select_questions_with_course, {
-      course_id: this.course.id,
-    });
-    const oldNamesLong = _.map(result.rows, 'title');
-
-    debug('Get all existing short names');
-    const oldNamesShort = await this.getExistingShortNames(questionsPath, 'info.json');
-
-    debug(`Generate qid and title`);
-    const names = this.getNamesForAdd(oldNamesShort, oldNamesLong);
-    const qid = names.shortName;
-    const questionPath = path.join(questionsPath, qid);
+    debug(`Create question path`);
+    const questionPath = path.join(questionsPath, this.qid);
     this.pathsToAdd = [questionPath];
-    this.commitMessage = `add question ${qid}`;
+    this.commitMessage = `add question ${this.qid}`;
 
     const fromPath = path.join(EXAMPLE_COURSE_PATH, 'questions', 'demo', 'calculation');
     const toPath = questionPath;
@@ -831,7 +828,7 @@ export class QuestionAddEditor extends Editor {
     const infoJson = await fs.readJson(path.join(questionPath, 'info.json'));
 
     debug(`Write info.json with new title and uuid`);
-    infoJson.title = names.longName;
+    infoJson.title = this.title;
     infoJson.uuid = this.uuid;
     await fs.writeJson(path.join(questionPath, 'info.json'), infoJson, { spaces: 4 });
   }

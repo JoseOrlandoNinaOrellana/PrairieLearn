@@ -161,6 +161,19 @@ onDocumentReady(() => {
     };
   });
 
+  let showToast = function (type, message) {
+    const toastElement = document.getElementById('toast');
+    const toastTitleElement = document.getElementById('toastTitle');
+    const toastBodyElement = document.getElementById('toastBody');
+
+    toastElement.className = `toast text-white bg-${type === 'success' ? 'success' : 'danger'}`;
+    toastTitleElement.textContent = type;
+    toastBodyElement.textContent = message;
+
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+  };
+
   const tableSettings = {
     icons: {
       columns: 'fa-th-list',
@@ -193,9 +206,43 @@ onDocumentReady(() => {
       icon: 'fa-plus',
       attributes: { title: 'Create a new question' },
       event: () => {
-        $('form[name=add-question-form]').submit();
+        $('#addQuestionModal').modal('show');
       },
     };
+
+    const form = $('form[name="add-question-form"]');
+    form.on('submit', async function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (this.checkValidity() === false) {
+        $(this).addClass('was-validated');
+        return;
+      }
+
+      $('#addQuestionModal').modal('hide');
+      const formData = new FormData(this);
+
+      try {
+        const response = await fetch('', {
+          method: 'POST',
+          body: formData,
+        });
+
+        console.log(response);
+        const data = await response.json();
+        const message = data.message;
+
+        if (!response.ok) {
+          showToast('error', message);
+          return;
+        }
+
+        showToast('success', message);
+      } catch (error) {
+        console.error(error);
+        showToast('error', 'An error occurred!');
+      }
+    });
   }
 
   $('#questionsTable').bootstrapTable(tableSettings);
@@ -212,5 +259,19 @@ onDocumentReady(() => {
       }
       event.preventDefault();
     }
+  });
+
+  $(document).on('change', '.custom-file-input', function () {
+    let fileName = $(this).val().replace(/\\/g, '/').replace(/.*\//, '');
+    $(this).parent('.custom-file').find('.custom-file-label').text(fileName);
+    $(this).removeClass('is-invalid');
+  });
+
+  $('form[name="add-question-form"]').on('submit', function (event) {
+    if (this.checkValidity() === false) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    $(this).addClass('was-validated');
   });
 });

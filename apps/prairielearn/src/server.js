@@ -284,6 +284,7 @@ export async function initExpress() {
     '/pl/course_instance/:course_instance_id(\\d+)/instructor/assessment/:assessment_id(\\d+)/groups',
     upload.single('file'),
   );
+  app.post('/pl/course/:course_id/course_admin/questions', upload.single('file'));
 
   /**
    * Function to strip "sensitive" cookies from requests that will be proxied

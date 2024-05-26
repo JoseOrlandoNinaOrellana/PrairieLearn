@@ -52,6 +52,22 @@ export function QuestionsTable({
       'questions-table-data',
     )}
 
+    <div class="toast-container" id="toastContainer">
+      <div
+        id="toast"
+        class="toast"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+        data-delay="4000"
+      >
+        <div class="toast-header">
+          <strong class="me-auto" id="toastTitle"></strong>
+        </div>
+        <div class="toast-body" id="toastBody"></div>
+      </div>
+    </div>
+
     <div class="card mb-4">
       <div class="card-header bg-primary">
         <div class="row align-items-center justify-content-between">
@@ -61,10 +77,73 @@ export function QuestionsTable({
         </div>
       </div>
 
-      <form class="ml-1 btn-group" name="add-question-form" method="POST">
-        <input type="hidden" name="__csrf_token" value="${__csrf_token}" />
-        <input type="hidden" name="__action" value="add_question" />
-      </form>
+      <div
+        class="modal fade"
+        id="addQuestionModal"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="addQuestionModalLabel"
+      >
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title" id="addQuestionModalLabel">Add Question</h4>
+            </div>
+
+            <form
+              class="needs-validation"
+              name="add-question-form"
+              method="POST"
+              enctype="multipart/form-data"
+              novalidate
+            >
+              <input type="hidden" name="__csrf_token" value="${__csrf_token}" />
+              <input type="hidden" name="__action" value="add_question" />
+
+              <div class="modal-body">
+                <div class="form-group">
+                  <label for="questionTitleInput">Title</label>
+                  <input
+                    type="text"
+                    name="title"
+                    id="questionTitleInput"
+                    class="form-control"
+                    placeholder="Enter question title"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="questionIdInput">Question id</label>
+                  <input
+                    type="text"
+                    name="id"
+                    id="questionIdInput"
+                    class="form-control"
+                    placeholder="Enter the id of the question"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="attachFileInput">Solution file</label>
+                  <div class="custom-file">
+                    <input type="file" name="file" class="custom-file-input" id="attachFileInput" />
+                    <label class="custom-file-label" for="attachFileInput">Choose file</label>
+                    <div class="invalid-feedback">Please choose a file</div>
+                    <small class="form-text text-muted">Max file size: 10MB</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add question</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
 
       <table
         id="questionsTable"

@@ -23,3 +23,11 @@
 .fixed-table-toolbar div.pagination-detail {
   margin: 0 1em 0 0 !important;
 }
+
+#toastContainer {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 9999;
+  float: right;
+}
