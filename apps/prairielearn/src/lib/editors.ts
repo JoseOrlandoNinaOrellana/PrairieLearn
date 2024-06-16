@@ -819,7 +819,7 @@ export class QuestionAddEditor extends Editor {
     this.pathsToAdd = [questionPath];
     this.commitMessage = `add question ${this.qid}`;
 
-    const fromPath = path.join(EXAMPLE_COURSE_PATH, 'questions', 'demo', 'calculation');
+    const fromPath = path.join(EXAMPLE_COURSE_PATH, 'questions', 'codingQuestion');
     const toPath = questionPath;
     debug(`Copy template\n from ${fromPath}\n to ${toPath}`);
     await fs.copy(fromPath, toPath, { overwrite: false, errorOnExist: true });

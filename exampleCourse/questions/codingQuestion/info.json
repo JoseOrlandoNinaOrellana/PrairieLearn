@@ -1,0 +1,18 @@
+{
+    "uuid": "d5d89faa-c8dc-4759-9511-9df46b18830d",
+    "title": "Coding question",
+    "topic": "Autograder",
+    "tags": [
+        "code",
+        "c++"
+    ],
+    "type": "v3",
+    "singleVariant": true,
+    "gradingMethod": "External",
+    "externalGradingOptions": {
+        "enabled": true,
+        "image": "orlqndo/gtest-grader",
+        "timeout": 600,
+        "entrypoint": "/config/initGrade.sh"
+    }
+}
