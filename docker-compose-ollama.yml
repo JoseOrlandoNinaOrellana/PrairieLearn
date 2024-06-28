@@ -1,0 +1,37 @@
+version: '3.8'
+services:
+  pl:
+    build:
+      context: .
+    image: prairielearn/prairielearn
+    ports:
+      - 3000:3000
+    volumes:
+      - ./testCourse:/course
+      - /home/usuario/.ssh:/root/.ssh
+      - ///var/run/docker.sock:/var/run/docker.sock
+      - ${HOME}/pl_ag_jobs:/jobs
+      - .:/PrairieLearn
+    container_name: pl
+    environment:
+      - HOST_JOBS_DIR=${HOME}/pl_ag_jobs
+      - DEV=true
+  
+  tg:
+    image: orlqndo/test-generator
+    container_name: tg
+    volumes:
+      - ///var/run/docker.sock:/var/run/docker.sock
+      - /cpp-project/:/cpp-project/
+    ports:
+      - 3030:3030
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - 11434:11434
+    volumes:
+      - /mnt/disk1/ollama/ollama/models:/ollama/models
+    environment:
+      - OLLAMA_MODELS=/ollama/models
