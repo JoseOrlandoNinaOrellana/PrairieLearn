@@ -267,6 +267,12 @@ onDocumentReady(() => {
     }
   });
 
+  $('#addQuestionModal').on('hidden.bs.modal', function () {
+    $(this).find('form').trigger('reset');
+    $(this).find('.custom-file').find('.custom-file-label').text('Choose file');
+    $(this).find('form').removeClass('is-invalid is-valid was-validated');
+  });
+
   $(document).on('change', '.custom-file-input', function () {
     let fileName = $(this).val().replace(/\\/g, '/').replace(/.*\//, '');
     $(this).parent('.custom-file').find('.custom-file-label').text(fileName);
