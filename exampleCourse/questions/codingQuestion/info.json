@@ -11,7 +11,7 @@
     "gradingMethod": "External",
     "externalGradingOptions": {
         "enabled": true,
-        "image": "orlqndo/gtest-grader",
+        "image": "orlqndo/gtest-grader:v2.1",
         "timeout": 600,
         "entrypoint": "/config/initGrade.sh"
     }
