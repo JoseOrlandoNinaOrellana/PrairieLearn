@@ -118,6 +118,18 @@ export function QuestionsTable({
                     <small class="form-text text-muted">Max file size: 10MB</small>
                   </div>
                 </div>
+
+                <div class="form-group">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="aiActivated"
+                      id="defaultCheck1"
+                    />
+                    <label class="form-check-label" for="defaultCheck1">AI</label>
+                  </div>
+                </div>
               </div>
 
               <div class="modal-footer">

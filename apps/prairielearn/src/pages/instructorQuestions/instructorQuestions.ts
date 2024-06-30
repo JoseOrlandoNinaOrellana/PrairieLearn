@@ -59,6 +59,7 @@ router.post(
     };
 
     if (req.body.__action === 'add_question') {
+      console.log(req.body);
       if (!req.body.title) {
         res.status(400).json({ message: 'Title is required' });
         return;
@@ -135,17 +136,46 @@ router.post(
         }
 
         // Generate tests
-        const formData = new FormData();
+        let formData;
         const code = req.file?.buffer.toString('utf8') || '';
-        formData.append('code', code);
+        if (req.body.aiActivated === 'on') {
+          formData = {
+            model: 'test-generator',
+            prompt: code,
+            stream: false,
+          };
+        } else {
+          formData = new FormData();
+          formData.append('code', code);
+        }
 
         try {
-          const response = await axios.post('http://tg:3030/generate', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-          });
+          let response;
+          let test;
+          if (req.body.aiActivated === 'on') {
+            response = await axios.post('http://ollama:11434/api/generate', formData, {
+              headers: { 'Content-Type': 'application/json' },
+            });
+
+            test = response.data.response;
+            const regex = /\[TESTS\](.*?)\[\/TESTS\]/s;
+            const match = test.match(regex);
+
+            if (match && match[1]) {
+              test = match[1];
+              console.log(test);
+            } else {
+              res.status(500).json({ message: 'Error generating tests' });
+              return;
+            }
+          } else {
+            response = await axios.post('http://tg:3030/generate', formData, {
+              headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            test = response.data;
+          }
 
           console.log(response.data);
-          const test = response.data;
           const testFolderName = 'tests';
           const testFileName = 'test.cpp';
 
