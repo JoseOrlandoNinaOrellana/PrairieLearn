@@ -1,18 +1,29 @@
 version: '3.8'
 services:
   pl:
-    image: prairielearn/prairielearn:latest
+    image: orlqndo/pl:v1.3.0
     ports:
       - 3000:3000
     volumes:
       - postgres:/var/postgres
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ${HOME}/pl_ag_jobs:/jobs
+      - ./config.json:/PrairieLearn/config.json
+      - ///var/run/docker.sock:/var/run/docker.sock
+      - /home/usuario/.ssh:/root/.ssh
+      - /home/usuario/TFG/dev/pl/plJobss:/jobs
+      - /home/usuario/TFG/dev/pl/courses:/courses
 
     container_name: pl
     environment:
-      - HOST_JOBS_DIR=${HOME}/pl_ag_jobs
       - NODE_ENV=production
+
+  tg:
+    image: orlqndo/test-generator
+    container_name: tg
+    volumes:
+      - ///var/run/docker.sock:/var/run/docker.sock
+      - /cpp-project/:/cpp-project/
+    ports:
+      - 3030:3030
 
 volumes:
   postgres:
